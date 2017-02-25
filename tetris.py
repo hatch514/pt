@@ -8,7 +8,6 @@ FPS=30
 display_height = 400
 display_width = 200
 
-
 white = (255,255,255)
 black = (0,0,0)
 blue = (0,100,255)
@@ -22,8 +21,9 @@ leftwallPoint=0
 
 gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('Simple TETRIS')
-gameDisplay.fill(white)
-
+# font setting
+pygame.font.init()
+  
 def frame():
 	pygame.draw.rect(gameDisplay, 
 					black, 
@@ -32,6 +32,24 @@ def frame():
 def returnBlock():
 	pass
 	
+def startScreen():
+  gameDisplay.fill(white)
+  fontTitle = pygame.font.SysFont("Consolas",20)
+  fontHowTo = pygame.font.SysFont("Consolas",12)
+  txtTitle = fontTitle.render('Py Tetris', False, black)
+  txtHowTo = fontHowTo.render('press any key to start', False, black)
+  gameDisplay.blit(txtTitle,(55,100))
+  gameDisplay.blit(txtHowTo,(25,200))
+  pygame.display.update()
+
+  screenLoop = True
+  while screenLoop:
+    for event in pygame.event.get():
+      if event.type == pygame.KEYDOWN: 
+        screenLoop = False  
+  
+  return 0
+
 def moveBlock(nowBlock,direction):
 	for eachBlock_XnY in nowBlock: 
 		if direction=="right":
@@ -101,7 +119,6 @@ def tetris():
 		pygame.display.set_caption("Simple TETRIS : score "+str(score))
 		frame()
 		clock.tick(FPS)
-		
 		 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -122,7 +139,6 @@ def tetris():
 					else:
 						nowBlock = moveBlock(nowBlock,"down")
 					
-				
 		pygame.draw.rect(gameDisplay,blue,[nowBlock[0][0],nowBlock[0][1],block_size,block_size])
 		pygame.draw.rect(gameDisplay,blue,[nowBlock[1][0],nowBlock[1][1],block_size,block_size])
 		pygame.draw.rect(gameDisplay,blue,[nowBlock[2][0],nowBlock[2][1],block_size,block_size])
@@ -142,8 +158,7 @@ def tetris():
 			
 		pygame.display.update()
 
-	#	
-	
 if __name__ == "__main__":
-	tetris()
-	#
+  startScreen()
+  tetris()
+

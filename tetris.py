@@ -20,7 +20,6 @@ leftWallPoint = 0
 DisplayHeight = blockSize * (groundPoint+1)
 DisplayWidth = blockSize * (rightWallPoint+1)
 gameDisplay = pg.display.set_mode((DisplayWidth,DisplayHeight))
-pg.display.set_caption('python TETRIS')
 # font setting
 pg.font.init()
   
@@ -31,6 +30,7 @@ def returnBlock():
   pass
   
 def startScreen():
+  pg.display.set_caption('python TETRIS')
   gameDisplay.fill(white)
   fontTitle = pg.font.SysFont("Consolas",20)
   fontHowTo = pg.font.SysFont("Consolas",12)
@@ -54,14 +54,17 @@ def startScreen():
         quit()    
   return 0
 
-def gameoverScreen():
+def gameoverScreen(score):
   gameDisplay.fill(white)
   fontTitle = pg.font.SysFont("Consolas",20)
+  fontScore = pg.font.SysFont("Consolas",16)
   fontHowTo = pg.font.SysFont("Consolas",12)
   txtTitle = fontTitle.render('GAME OVER', False, red)
+  txtScore = fontScore.render('score '+str(score), False, black)
   txtHowTo = fontHowTo.render('press any key to go start screen', False, black)
   gameDisplay.blit(txtTitle,(55,100))
-  gameDisplay.blit(txtHowTo,(25,200))
+  gameDisplay.blit(txtScore,(67,140))
+  gameDisplay.blit(txtHowTo,(20,200))
   pg.display.update()
 
   screenLoop = True
@@ -160,9 +163,9 @@ def tetris():
   clock = pg.time.Clock()
   blockList = []
   nowBlock = initBlock()
+  pg.display.set_caption("score "+str(score))
 
   while gameLoop:
-    pg.display.set_caption("score "+str(score))
     gameFrame()
     clock.tick(FPS)
 
@@ -186,10 +189,11 @@ def tetris():
         fallCount = 30
       else:
         nowBlock = moveBlock(nowBlock,"down")
+        score += 1 
           
     drawNowBlock(nowBlock)
     drawAllBlock(blockList)
-    fallCount+=1
+    fallCount += 1
     
     if fallCount >= 30:
       if evalGround(nowBlock,blockList):
@@ -200,13 +204,16 @@ def tetris():
       else :
         nowBlock = moveBlock(nowBlock,"down")
         fallCount = 0
-
+ 
+    pg.display.set_caption("score "+str(score))
     pg.display.update()
     gameLoop = evalGameOver(blockList)
+
+  return score
 
 if __name__ == "__main__":
   mainLoop = True
   while mainLoop:
     startScreen()
-    tetris()
-    gameoverScreen()
+    score = tetris()
+    gameoverScreen(score)

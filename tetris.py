@@ -44,7 +44,11 @@ def startScreen():
   while screenLoop:
     for event in pg.event.get():
       if event.type == pg.KEYDOWN:
-        screenLoop = False  
+        if event.key == pg.K_q:
+          pg.quit()
+          quit()    
+        else:
+          screenLoop = False  
       if event.type == pg.QUIT:
         pg.quit()
         quit()    
@@ -64,7 +68,11 @@ def gameoverScreen():
   while screenLoop:
     for event in pg.event.get():
       if event.type == pg.KEYDOWN:
-        screenLoop = False  
+         if event.key == pg.K_q:
+          pg.quit()
+          quit()    
+         else:
+          screenLoop = False  
       if event.type == pg.QUIT:
         pg.quit()
         quit()    
@@ -128,10 +136,22 @@ def drawAllBlock(blockList):
     pg.draw.rect(gameDisplay,blue,[bs * block[0], bs * block[1], bs, bs])
 
 def initBlock():
-  variety = ['square']
-  nextBlock = variety[0]
+  variety = ['square','L','L-reverse','S','S-reverse','T','I']
+  nextBlock = variety[random.randint(0, len(variety) - 1)]
   if nextBlock == 'square':
-    return [[s_X, s_Y], [s_X + 1, s_Y], [s_X, s_Y - 1], [s_X + 1,s_Y - 1]]
+    return [[s_X, s_Y], [s_X + 1, s_Y], [s_X, s_Y - 1], [s_X + 1, s_Y - 1]]
+  if nextBlock == 'L':
+    return [[s_X, s_Y], [s_X + 1, s_Y], [s_X, s_Y - 1], [s_X, s_Y - 2]]
+  if nextBlock == 'L-reverse':
+    return [[s_X, s_Y], [s_X - 1, s_Y], [s_X, s_Y - 1], [s_X, s_Y - 2]]
+  if nextBlock == 'S':
+    return [[s_X, s_Y], [s_X, s_Y + 1], [s_X - 1, s_Y], [s_X - 1, s_Y - 1]]
+  if nextBlock == 'S-reverse':
+    return [[s_X, s_Y], [s_X, s_Y + 1], [s_X + 1, s_Y], [s_X + 1, s_Y - 1]]
+  if nextBlock == 'T':
+    return [[s_X, s_Y], [s_X, s_Y + 1], [s_X - 1, s_Y], [s_X + 1, s_Y]]
+  if nextBlock == 'I':
+    return [[s_X, s_Y], [s_X, s_Y - 1], [s_X, s_Y - 2], [s_X, s_Y - 3]]
 
 def tetris():
   gameLoop = True
@@ -142,7 +162,7 @@ def tetris():
   nowBlock = initBlock()
 
   while gameLoop:
-    pg.display.set_caption("Simple TETRIS : score "+str(score))
+    pg.display.set_caption("score "+str(score))
     gameFrame()
     clock.tick(FPS)
 

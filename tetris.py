@@ -48,6 +48,9 @@ def startScreen():
     for event in pygame.event.get():
       if event.type == pygame.KEYDOWN: 
         screenLoop = False  
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        quit()    
   return 0
 
 def gameoverScreen():
@@ -65,6 +68,9 @@ def gameoverScreen():
     for event in pygame.event.get():
       if event.type == pygame.KEYDOWN: 
         screenLoop = False  
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        quit()    
   return 0
  
 def moveBlock(nowBlock,direction):
@@ -145,20 +151,22 @@ def tetris():
       if event.type == pygame.QUIT:
         pygame.quit()
         quit()    
-      if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_LEFT:
-          if not eval_wall(nowBlock,blockList,"left"):
-            nowBlock = moveBlock(nowBlock,"left")
-        elif event.key == pygame.K_RIGHT:
-          if not  eval_wall(nowBlock,blockList,"right"):
-            nowBlock = moveBlock(nowBlock,"right")
-        elif event.key == pygame.K_UP:
-          pass
-        elif event.key == pygame.K_DOWN:
-          if eval_ground(nowBlock,blockList):
-            fallCount == 30
-          else:
-            nowBlock = moveBlock(nowBlock,"down")
+
+    pygame.event.pump()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+      if not eval_wall(nowBlock,blockList,"left"):
+        nowBlock = moveBlock(nowBlock,"left")
+    elif keys[pygame.K_RIGHT]:
+      if not  eval_wall(nowBlock,blockList,"right"):
+        nowBlock = moveBlock(nowBlock,"right")
+    elif keys[pygame.K_UP]:
+      pass
+    elif keys[pygame.K_DOWN]:
+      if eval_ground(nowBlock,blockList):
+        fallCount = 30
+      else:
+        nowBlock = moveBlock(nowBlock,"down")
           
     pygame.draw.rect(gameDisplay,blue,[nowBlock[0][0],nowBlock[0][1],block_size,block_size])
     pygame.draw.rect(gameDisplay,blue,[nowBlock[1][0],nowBlock[1][1],block_size,block_size])

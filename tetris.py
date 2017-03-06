@@ -92,6 +92,9 @@ def moveBlock(nowBlock,direction):
     if direction=="left":
       block[0] = block[0] - 1
       block[1] = block[1]
+    if direction=="up":
+      block[0] = block[0]
+      block[1] = block[1] - 1  
   return nowBlock
 
 def evalGround(nowBlock,blockList):
@@ -103,7 +106,7 @@ def evalGround(nowBlock,blockList):
         return True
   return False
 
-def evalWall(nowBlock,blockList,direction):
+def evalAllBlock(nowBlock,blockList,direction):
   if direction == "right":
     for block in nowBlock:
       if block[0] == rightWallPoint:
@@ -121,6 +124,52 @@ def evalWall(nowBlock,blockList,direction):
           return True
         
   return False
+
+def evalWall(nowBlock):
+  for block in nowBlock:
+    if block[0] == leftWallPoint or block[0] == rightWallPoint:
+      return True
+  return False
+
+def slideFromRightWall(nowBlock,blockList):
+  rightEnd = 0
+  for block in nowBlock:
+    rightEnd = block[0] if block[0] > rightEnd else rightEnd
+  
+  maxSlide = 0
+  for block in nowBlock:
+    if block[0] == rightWallPoint + 1:
+      slide = (rightEnd - block[0]) + 1 
+      maxSlide = slide if slide > maxSlide else maxSlide 
+  return maxSlide
+
+def slideFromLeftWall(nowBlock,blockList):
+  leftEnd = rightWallPoint
+  for block in nowBlock:
+    leftEnd = block[0] if block[0] < leftEnd else leftEnd
+  
+  maxSlide = 0
+  for block in nowBlock:
+    if block[0] == - 1:
+      slide = (block[0] - leftEnd) + 1
+      maxSlide = slide if slide > maxSlide else maxSlide 
+  return maxSlide
+
+def slideFromGroundBlock(nowBlock,blockList):
+  bottomEnd = -5 
+  for block in nowBlock:
+    bottomEnd = block[1] if block[1] > bottomEnd else bottomEnd 
+  
+  maxSlide = 0
+  for block in nowBlock:
+    if block[1] == groundPoint + 1:
+      slide = (bottomEnd - block[1]) + 1
+      maxSlide = slide if slide > maxSlide else maxSlide 
+      for stack in blockList:
+        if block[0] == stack[0] and block[1] == stack[1]:
+          slide = (bottomEnd - block[1]) + 1
+          maxSlide = slide if slide > maxSlide else maxSlide 
+  return maxSlide
 
 def evalGameOver(blockList):
   for block in blockList:
@@ -156,6 +205,47 @@ def initBlock():
   if nextBlock == 'I':
     return [[s_X, s_Y], [s_X, s_Y - 1], [s_X, s_Y - 2], [s_X, s_Y - 3]]
 
+def evalConflict(nowBlock,blockList):
+  for block in nowBlock:
+     for stack in blockList:
+       if block[0] == stack[0] and block[1] == stack[1]:
+         return True
+  return False
+
+def rotateBlock(block,direction,blockList):
+  originBlock = copy.deepcopy(block)
+  originX = block[0][0]
+  originY = block[0][1]
+  vector = [[block[0][0]-originX, block[0][1]-originY],
+            [block[1][0]-originX, block[1][1]-originY],
+            [block[2][0]-originX, block[2][1]-originY],
+            [block[3][0]-originX, block[3][1]-originY]]
+
+  if(direction == "right"):
+    for i in range(0, len(block)):
+      block[i][0] = originX + vector[i][1] 
+      block[i][1] = originY - vector[i][0]
+
+  elif(direction == "left"):
+    for i in range(0, len(block)):
+      block[i][0] = originX - vector[i][1] 
+      block[i][1] = originY + vector[i][0]
+ 
+  correctRight = slideFromRightWall(block,blockList)
+  for i in range(0,correctRight):
+    block = moveBlock(block,"left")
+  correctLeft = slideFromLeftWall(block,blockList)
+  for i in range(0,correctLeft):
+    block = moveBlock(block,"right")
+  if vector[1][1] > 0 or vector[2][1] > 0 or vector[3][1] > 0:
+    correctGround = slideFromGroundBlock(block,blockList)
+    for i in range(0,correctGround):
+      block = moveBlock(block,"up")
+
+  if evalConflict(block,blockList):
+    return originBlock
+  return block 
+
 def tetris():
   gameLoop = True
   score = 0
@@ -170,17 +260,25 @@ def tetris():
     clock.tick(FPS)
 
     for event in pg.event.get():
-      if event.type == pg.QUIT or event.key == pg.K_q:
+      if event.type == pg.QUIT:
         pg.quit()
         quit()    
+      if event.type == pg.KEYDOWN:
+        if event.key == pg.K_q:
+          pg.quit()
+          quit()    
+        elif event.key == pg.K_z:
+          nowBlock = rotateBlock(nowBlock,"right",blockList)
+        elif event.key == pg.K_x:
+          nowBlock = rotateBlock(nowBlock,"left",blockList)
 
     pg.event.pump()
     keys = pg.key.get_pressed()
     if keys[pg.K_LEFT]:
-      if not evalWall(nowBlock,blockList,"left"):
+      if not evalAllBlock(nowBlock,blockList,"left"):
         nowBlock = moveBlock(nowBlock,"left")
     elif keys[pg.K_RIGHT]:
-      if not  evalWall(nowBlock,blockList,"right"):
+      if not  evalAllBlock(nowBlock,blockList,"right"):
         nowBlock = moveBlock(nowBlock,"right")
     elif keys[pg.K_UP]:
       pass

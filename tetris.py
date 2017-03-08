@@ -17,6 +17,8 @@ groundPoint = 19
 rightWallPoint = 9
 leftWallPoint = 0
 
+pointDict = {'0':0,'1':100,'2':400,'3':900,'4':1600}
+
 DisplayHeight = blockSize * (groundPoint+1)
 DisplayWidth = blockSize * (rightWallPoint+1)
 gameDisplay = pg.display.set_mode((DisplayWidth,DisplayHeight))
@@ -246,6 +248,35 @@ def rotateBlock(block,direction,blockList):
     return originBlock
   return block 
 
+def eliminateLine(blockList):
+  # TODO
+  checkIsOver = False
+  disappearLines = 0
+  while not checkIsOver:
+    checkIsOver = True
+    for height in range(0,(groundPoint+1)):
+      countBlock = 0
+      disaList = []
+      for stack in blockList:
+        if stack[1] == height:
+          disaList.append(stack)
+
+      if len(disaList) == (rightWallPoint+1):
+        disappearLines += 1
+        for removeBlock in disaList:
+          blockList.remove(removeBlock)
+        for stack in blockList:
+          if stack[1] < height:
+            stack[1] = stack[1] + 1
+   
+        checkIsOver = False
+        break
+
+  point = pointDict[str(disappearLines)]
+  result = {'blockList':blockList, 'point':point} 
+  
+  return result
+
 def tetris():
   gameLoop = True
   score = 0
@@ -297,6 +328,9 @@ def tetris():
       if evalGround(nowBlock,blockList):
         for block in nowBlock:
           blockList.append(copy.deepcopy(block))
+        result = eliminateLine(blockList)
+        blockList = result['blockList']
+        score = score + result['point'] 
         nowBlock = initBlock()
         fallCount = 0
       else :

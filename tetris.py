@@ -38,10 +38,19 @@ def startScreen():
   fontHowTo = pg.font.SysFont("Consolas",12)
   txtTitle = fontTitle.render('Py Tetris', False, black)
   txtHowTo = fontHowTo.render('press any key to start', False, black)
-  gameDisplay.blit(txtTitle,(55,100))
-  gameDisplay.blit(txtHowTo,(25,200))
+  gameDisplay.blit(txtTitle,(53,100))
+  gameDisplay.blit(txtHowTo,(23,200))
   pg.display.update()
 
+  fontCtrl = pg.font.SysFont("Consolas",12)
+  txtCtrl = fontCtrl.render('arrow keys : move', False, black)
+  gameDisplay.blit(txtCtrl,(23,250))
+  txtCtrl = fontCtrl.render('z : rotate left', False, black)
+  gameDisplay.blit(txtCtrl,(23,270))
+  txtCtrl = fontCtrl.render('x : rotate right', False, black)
+  gameDisplay.blit(txtCtrl,(23,290))
+  pg.display.update()
+ 
   screenLoop = True
   while screenLoop:
     for event in pg.event.get():
@@ -274,8 +283,19 @@ def eliminateLine(blockList):
 
   point = pointDict[str(disappearLines)]
   result = {'blockList':blockList, 'point':point} 
-  
   return result
+
+def showScore(score):
+  fontScore = pg.font.SysFont("Consolas",40)
+  txtScore = fontScore.render(str(score), False, red)
+  digits = 1
+  tmp = score
+  while tmp >= 10:
+    tmp = tmp / 10
+    digits += 1
+  
+  position = 100 - digits * 11
+  gameDisplay.blit(txtScore,(position,100))
 
 def tetris():
   gameLoop = True
@@ -284,7 +304,7 @@ def tetris():
   clock = pg.time.Clock()
   blockList = []
   nowBlock = initBlock()
-  pg.display.set_caption("score "+str(score))
+  pg.display.set_caption(str(score))
 
   while gameLoop:
     gameFrame()
@@ -320,8 +340,6 @@ def tetris():
         nowBlock = moveBlock(nowBlock,"down")
         score += 1 
           
-    drawNowBlock(nowBlock)
-    drawAllBlock(blockList)
     fallCount += 1
     
     if fallCount >= 30:
@@ -337,7 +355,10 @@ def tetris():
         nowBlock = moveBlock(nowBlock,"down")
         fallCount = 0
  
-    pg.display.set_caption("score "+str(score))
+    pg.display.set_caption(str(score))
+    showScore(score)
+    drawNowBlock(nowBlock)
+    drawAllBlock(blockList)
     pg.display.update()
     gameLoop = evalGameOver(blockList)
 
